@@ -23,4 +23,5 @@ $ sudo make install
 ```
 
 for Debian and Debian-like systems (eg. Ubuntu). The only dependency is the Rust compiler.
+Compiled with Rust 1.7.
 
