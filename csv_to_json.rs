@@ -1,11 +1,23 @@
 use std::io;
 use std::io::BufReader;
 use std::io::prelude::*;
+use std::env;
+use std::process::exit;
+
+fn usage() {
+  println!("Usage: cat input.csv | csv_to_json");
+}
 
 fn main() {
+  let args : Vec<String> = env::args().collect();
+
+  if args.len() > 1 {
+    usage();
+    exit(1);
+  }
+
+  let mut reader = BufReader::new(io::stdin());
   let split_char = ',';
-  let stdin = io::stdin();
-  let mut reader = BufReader::new(stdin);
 
   let mut line = String::new();
   let _unused_size = reader.read_line(&mut line);
