@@ -12,8 +12,7 @@ fn usage() {
 
 fn main() {
   let stdin = io::stdin();
-  let mut filereader;
-  let mut reader = &mut stdin.lock() as &mut BufRead;
+  let mut reader = Box::new(stdin.lock()) as Box<BufRead>;
   let args : Vec<String> = env::args().collect();
 
   if args.len() > 2 {
@@ -25,8 +24,7 @@ fn main() {
       usage();
       process::exit(1);
     }
-    filereader = BufReader::new(file.unwrap());
-    reader = &mut filereader;
+    reader = Box::new(BufReader::new(file.unwrap()));
   }
 
   let split_char = ',';
