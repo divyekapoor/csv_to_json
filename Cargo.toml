@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Divye Kapoor <divyekapoor@gmail.com>"]
 
 [dependencies]
+csv = "0.14.4"

@@ -1,5 +1,6 @@
+extern crate csv;
+
 use std::io;
-use std::io::BufReader;
 use std::io::prelude::*;
 use std::env;
 use std::process;
@@ -10,58 +11,65 @@ fn usage() {
   println!("Usage: csv_to_json input.csv");
 }
 
+fn arg_or_stdin(filename_or_none: Option<String>) -> Result<Box<Read>, io::Error> {
+  match filename_or_none {
+    Some(filename) => {
+      let file = try!(File::open(filename));
+      Ok(Box::new(file) as Box<Read>)
+    },
+    None => {
+      Ok(Box::new(io::stdin()) as Box<Read>)
+    }
+  }
+}
+
+fn row_to_object(headers: &Vec<String>, row: &Vec<String>) -> Result<String, String> {
+  if row.len() > headers.len() {
+    return Err(format!("Size mismatch between headers ({}) and row ({})", headers.len(), row.len()));
+  }
+
+  let joined_fields = headers.iter().zip(row.iter()).map(|(header, row)| format!("\"{}\": \"{}\"", header, row)).collect::<Vec<String>>().join(",");
+
+  Ok(
+    ["{", &joined_fields[..],  "}"].concat()
+  )
+}
+
 fn main() {
-  let stdin = io::stdin();
-  let mut reader = Box::new(stdin.lock()) as Box<BufRead>;
   let args : Vec<String> = env::args().collect();
 
   if args.len() > 2 {
     usage();
     process::exit(1);
-  } else if args.len() == 2 {
-    let file = File::open(args[1].clone());
-    if !file.is_ok() {
+  }
+
+
+  let input = arg_or_stdin(env::args().nth(1));
+  match input {
+    Err(e) => {
+      println!("Unable to open file: {:?}", e);
       usage();
       process::exit(1);
-    }
-    reader = Box::new(BufReader::new(file.unwrap()));
-  }
+    },
+    Ok(_) => {}
+  };
 
-  let split_char = ',';
+  let mut csv_reader = csv::Reader::from_reader(input.unwrap()).has_headers(true);
 
-  let mut line = String::new();
-  let _unused_size = reader.read_line(&mut line);
+  let headers : Vec<String> = csv_reader.headers().unwrap_or(Vec::new());
 
-  let headers : Vec<&str> = line.trim().split(split_char).collect();
+  print!("[");
 
   let mut first = true;
-
-  for line in reader.lines() {
-    if first {
-      print!("[");
-      first = false;
-    } else {
+  for row in csv_reader.decode() {
+    if !first {
       println!(",");
+    } else {
+      first = false;
     }
-
-    // Opening brace (escaped).
-    print!("{{");
-
-    let line_str = line.unwrap();
-
-    let mut first = true;
-    let components : Vec<&str> = line_str.split(split_char).collect();
-    for (header, component) in headers.iter().zip(components.iter()) {
-      if !first {
-        print!(",");
-      } else {
-        first = false;
-      }
-      print!("\"{}\": \"{}\"", header, component);
-    }
-
-    // Closing brace (escaped).
-    print!("}}");
+    let row_value : Vec<String> = row.unwrap_or(Vec::new());
+    print!("{}", row_to_object(&headers, &row_value).unwrap_or("".to_owned()));
   }
+
   println!("]");
 }
