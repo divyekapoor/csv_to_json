@@ -23,13 +23,20 @@ fn arg_or_stdin(filename_or_none: Option<String>) -> Result<Box<Read>, io::Error
   }
 }
 
+fn escape_string(content: &String) -> String {
+  content.chars().map(|c| match c {
+      '\n' => { "\\\\n".to_owned() },
+      x => { x.to_string() }
+      }).collect::<Vec<String>>().concat()
+}
+
 fn row_to_object(headers: &Vec<String>, row: &Vec<String>) -> Result<String, String> {
   if row.len() > headers.len() {
     return Err(format!("Size mismatch between headers ({}) and row ({})", headers.len(), row.len()));
   }
 
   let joined_fields = headers.iter().zip(row.iter()).map(|(header, row)|
-    format!("\"{}\": \"{}\"", header, row)).collect::<Vec<String>>().join(",");
+    format!("\"{}\": \"{}\"", header, escape_string(&row))).collect::<Vec<String>>().join(",");
 
   Ok(
     ["{", &joined_fields[..],  "}"].concat()
@@ -43,7 +50,6 @@ fn main() {
     usage();
     process::exit(1);
   }
-
 
   let input = arg_or_stdin(env::args().nth(1));
   match input {
