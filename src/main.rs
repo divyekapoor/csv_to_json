@@ -28,7 +28,8 @@ fn row_to_object(headers: &Vec<String>, row: &Vec<String>) -> Result<String, Str
     return Err(format!("Size mismatch between headers ({}) and row ({})", headers.len(), row.len()));
   }
 
-  let joined_fields = headers.iter().zip(row.iter()).map(|(header, row)| format!("\"{}\": \"{}\"", header, row)).collect::<Vec<String>>().join(",");
+  let joined_fields = headers.iter().zip(row.iter()).map(|(header, row)|
+    format!("\"{}\": \"{}\"", header, row)).collect::<Vec<String>>().join(",");
 
   Ok(
     ["{", &joined_fields[..],  "}"].concat()
