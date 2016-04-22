@@ -2,6 +2,7 @@
 Takes in a CSV file and transforms it to JSON. Each line of the CSV file gets it's own line in the JSON file.
 
 ![travis-ci build status](https://travis-ci.org/divyekapoor/csv_to_json.svg?branch=master)
+[![](http://meritbadge.herokuapp.com/csv_to_json)](https://crates.io/crates/csv_to_json)
 
 ```sh
 $ cat input.csv
