@@ -2,6 +2,13 @@
 name = "csv_to_json"
 version = "1.0.2"
 authors = ["Divye Kapoor <divyekapoor@gmail.com>"]
+description = "A binary that converts a CSV file with a header line to its JSON representation."
+documentation = "https://github.com/divyekapoor/csv_to_json"
+homepage = "https://github.com/divyekapoor/csv_to_json"
+repository = "https://github.com/divyekapoor/csv_to_json"
+readme = "README.md"
+keywords = ["csv", "json", "streaming", "converter"]
+license = "MIT"
 
 [dependencies]
 csv = "0.14.4"
